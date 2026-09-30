@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalEase - AI Legal Document Generator</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --muted: #64748b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            background: var(--secondary);
+            color: white;
+            padding: 25px 18px;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px 30px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .logo h2 {
+            font-size: 21px;
+        }
+
+        .logo span {
+            color: #93c5fd;
+        }
+
+        .nav-title {
+            color: #94a3b8;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 12px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px;
+            border-radius: 8px;
+            color: #cbd5e1;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: .2s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-bottom {
+            position: absolute;
+            bottom: 20px;
+            left: 18px;
+            right: 18px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 72px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 35px;
+        }
+
+        .search {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 9px 15px;
+            border-radius: 8px;
+            width: 330px;
+        }
+
+        .search input {
+            border: none;
+            outline: none;
+            background: transparent;
+            width: 100%;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 35px;
+        }
+
+        /* =========================
+           DASHBOARD HEADER
+        ========================= */
+
+        .welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            font-size: 28px;
+            margin-bottom: 7px;
+        }
+
+        .welcome p {
+            color: var(--muted);
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: .2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-light {
+            background: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        /* =========================
+           STATS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 9px;
+            background: #eff6ff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-card h2 {
+            margin-top: 15px;
+            font-size: 26px;
+        }
+
+        .stat-card p {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* =========================
+           GENERATOR
+        ========================= */
+
+        .generator {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 22px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-header h3 {
+            margin-bottom: 5px;
+        }
+
+        .panel-header p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        /* Document types */
+
+        .document-types {
+            display: grid;
+            gap: 10px;
+        }
+
+        .document-type {
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: .2s;
+            display: flex;
+            gap: 13px;
+            align-items: center;
+        }
+
+        .document-type:hover {
+            border-color: #93c5fd;
+            background: #f8fbff;
+        }
+
+        .document-type.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .doc-icon {
+            width: 38px;
+            height: 38px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .document-type.selected .doc-icon {
+            background: #dbeafe;
+        }
+
+        .doc-info strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .doc-info small {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        /* Form */
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px #dbeafe;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .generate-btn {
+            width: 100%;
+            margin-top: 5px;
+            padding: 14px;
+            font-size: 15px;
+        }
+
+        /* =========================
+           DOCUMENT PREVIEW
+        ========================= */
+
+        .preview-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .document-paper {
+            margin: 25px;
+            padding: 45px 55px;
+            min-height: 650px;
+            background: white;
+            border: 1px solid #dbe2ea;
+            box-shadow: 0 5px 25px rgba(15, 23, 42, .06);
+        }
+
+        .document-paper h1 {
+            text-align: center;
+            font-family: Georgia, serif;
+            font-size: 21px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .document-paper h2 {
+            font-family: Georgia, serif;
+            font-size: 17px;
+            margin: 20px 0 10px;
+        }
+
+        .document-paper p {
+            font-family: Georgia, serif;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .signature {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 60px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #111;
+            padding-top: 8px;
+            font-family: Georgia, serif;
+            font-size: 13px;
+        }
+
+        .empty-preview {
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            text-align: center;
+            padding: 30px;
+        }
+
+        .empty-icon {
+            width: 75px;
+            height: 75px;
+            background: #eff6ff;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 18px;
+        }
+
+        /* =========================
+           HISTORY
+        ========================= */
+
+        .history {
+            margin-top: 30px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .history-table th {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .modal-box h2 {
+            margin-bottom: 10px;
+        }
+
+        .modal-box p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .generator {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 750px) {
+            .sidebar {
+                width: 65px;
+                padding: 20px 8px;
+            }
+
+            .logo {
+                justify-content: center;
+                padding: 0 0 25px;
+            }
+
+            .logo h2,
+            .nav-item span,
+            .nav-title,
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+            }
+
+            .main {
+                margin-left: 65px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .search {
+                width: 200px;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .welcome {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .document-paper {
+                margin: 10px;
+                padding: 25px;
+            }
+
+            .signature {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+
+            .history-table {
+                min-width: 650px;
+            }
+
+            .history {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =========================
+     SIDEBAR
+========================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">L</div>
+        <h2>Legal<span>Ease</span></h2>
+    </div>
+
+    <div class="nav-title">Workspace</div>
+
+    <div class="nav-item active">
+        <div class="nav-icon">⌂</div>
+        <span>Dashboard</span>
+    </div>
+
+    <div class="nav-item">
+        <div class="nav-icon">＋</div>
+        <span>Create Document</span>
+    </div>
+
+    <div class="nav-item">
+        <div class="nav-icon">▤</div>
+        <span>My Documents</span>
+    </div>
+
+    <div class="nav-item">
+        <div class="nav-icon">★</div>
+        <span>Templates</span>
+    </div>
+
+    <div class="nav-title">Account</div>
+
+    <div class="nav-item">
+        <div class="nav-icon">⚙</div>
+        <span>Settings</span>
+    </div>
+
+    <div class="nav-item">
+        <div class="nav-icon">?</div>
+        <span>Help Center</span>
+    </div>
+
+    <div class="sidebar-bottom">
+        <div class="nav-item" onclick="showAbout()">
+            <div class="nav-icon">ⓘ</div>
+            <span>About LegalEase</span>
+        </div>
+    </div>
+
+</aside>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<main class="main">
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <div class="search">
+            🔍
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search documents..."
+                onkeyup="searchDocuments()"
+            >
+        </div>
+
+        <div class="profile">
+            <div>
+                <strong>Alex Johnson</strong>
+                <small style="display:block;color:#64748b;">
+                    Personal Account
+                </small>
+            </div>
+
+            <div class="avatar">
+                AJ
+            </div>
+        </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <section class="content">
+
+        <div class="welcome">
+
+            <div>
+                <h1>Welcome to LegalEase 👋</h1>
+                <p>
+                    Create professional legal documents with AI assistance.
+                </p>
+            </div>
+
+            <button
+                class="btn btn-primary"
+                onclick="scrollToGenerator()"
+            >
+                + Create Document
+            </button>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span>Documents Created</span>
+                    <div class="stat-icon">▤</div>
+                </div>
+
+                <h2 id="documentCount">12</h2>
+                <p>Total documents generated</p>
+            </div>
+
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span>This Month</span>
+                    <div class="stat-icon">↗</div>
+                </div>
+
+                <h2>5</h2>
+                <p>Documents created this month</p>
+            </div>
+
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span>Templates</span>
+                    <div class="stat-icon">▦</div>
+                </div>
+
+                <h2>18</h2>
+                <p>Available templates</p>
+            </div>
+
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span>Saved Drafts</span>
+                    <div class="stat-icon">◷</div>
+                </div>
+
+                <h2>3</h2>
+                <p>Documents in progress</p>
+            </div>
+
+        </div>
+
+
+        <!-- GENERATOR -->
+
+        <div
+            class="generator"
+            id="generator"
+        >
+
+            <!-- LEFT -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h3>Create Legal Document</h3>
+                    <p>Select a document and provide basic details.</p>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        <label>Document Type</label>
+
+                        <div class="document-types">
+
+                            <div
+                                class="document-type selected"
+                                onclick="selectDocument(this, 'Rental Agreement')"
+                            >
+                                <div class="doc-icon">🏠</div>
+
+                                <div class="doc-info">
+                                    <strong>Rental Agreement</strong>
+                                    <small>Landlord & tenant agreement</small>
+                                </div>
+                            </div>
+
+
+                            <div
+                                class="document-type"
+                                onclick="selectDocument(this, 'Employment Contract')"
+                            >
+                                <div class="doc-icon">💼</div>
+
+                                <div class="doc-info">
+                                    <strong>Employment Contract</strong>
+                                    <small>Employer & employee agreement</small>
+                                </div>
+                            </div>
+
+
+                            <div
+                                class="document-type"
+                                onclick="selectDocument(this, 'Non-Disclosure Agreement')"
+                            >
+                                <div class="doc-icon">🔒</div>
+
+                                <div class="doc-info">
+                                    <strong>NDA</strong>
+                                    <small>Protect confidential information</small>
+                                </div>
+                            </div>
+
+
+                            <div
+                                class="document-type"
+                                onclick="selectDocument(this, 'Service Agreement')"
+                            >
+                                <div class="doc-icon">📄</div>
+
+                                <div class="doc-info">
+                                    <strong>Service Agreement</strong>
+                                    <small>Client & service provider</small>
+                                </div>
+                            </div>
+
+
+                            <div
+                                class="document-type"
+                                onclick="selectDocument(this, 'Sale Agreement')"
+                            >
+                                <div class="doc-icon">🤝</div>
+
+                                <div class="doc-info">
+                                    <strong>Sale Agreement</strong>
+                                    <small>Agreement between buyer & seller</small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input
+                            type="text"
+                            id="userName"
+                            placeholder="Enter your full name"
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Other Party</label>
+                        <input
+                            type="text"
+                            id="otherParty"
+                            placeholder="Enter other party's name"
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input
+                            type="text"
+                            id="location"
+                            placeholder="City, State / Country"
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Effective Date</label>
+                        <input
+                            type="date"
+                            id="effectiveDate"
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Additional Details</label>
+
+                        <textarea
+                            id="additionalDetails"
+                            placeholder="Enter important terms, conditions, payment details, responsibilities, etc."
+                        ></textarea>
+                    </div>
+
+
+                    <button
+                        class="btn btn-primary generate-btn"
+                        onclick="generateDocument()"
+                    >
+                        ✨ Generate Legal Document
+                    </button>
+
+                </div>
+            </div>
+
+
+            <!-- RIGHT -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div class="preview-toolbar">
+
+                        <div>
+                            <h3>Document Preview</h3>
+                            <p>Review the generated document before downloading.</p>
+                        </div>
+
+                        <div class="toolbar-actions">
+
+                            <button
+                                class="btn btn-light"
+                                onclick="copyDocument()"
+                            >
+                                Copy
+                            </button>
+
+                            <button
+                                class="btn btn-light"
+                                onclick="downloadDocument()"
+                            >
+                                Download
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div id="preview">
+
+                    <div class="empty-preview">
+
+                        <div class="empty-icon">
+                            📄
+                        </div>
+
+                        <h3>No document generated yet</h3>
+
+                        <p style="max-width:350px;margin-top:8px;">
+                            Select a document type, fill in the details,
+                            and click "Generate Legal Document".
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- HISTORY -->
+
+        <div class="panel history">
+
+            <div class="panel-header">
+                <h3>Recent Documents</h3>
+                <p>Your recently generated legal documents.</p>
+            </div>
+
+            <table class="history-table">
+
+                <thead>
+                    <tr>
+                        <th>Document</th>
+                        <th>Created</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="historyBody">
+
+                    <tr>
+                        <td>Apartment Rental Agreement</td>
+                        <td>Today</td>
+                        <td>Rental Agreement</td>
+                        <td>
+                            <span class="status">Completed</span>
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-light"
+                                onclick="alert('Document opened.')"
+                            >
+                                Open
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Freelance Service Agreement</td>
+                        <td>Yesterday</td>
+                        <td>Service Agreement</td>
+                        <td>
+                            <span class="status">Completed</span>
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-light"
+                                onclick="alert('Document opened.')"
+                            >
+                                Open
+                            </button>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================
+     MODAL
+========================= -->
+
+<div
+    class="modal"
+    id="aboutModal"
+>
+
+    <div class="modal-box">
+
+        <h2>About LegalEase</h2>
+
+        <p>
+            LegalEase is an AI-powered legal document generation interface
+            designed to help users create customizable legal-document drafts
+            more efficiently.
+        </p>
+
+        <br>
+
+        <p>
+            Generated documents should be reviewed by an appropriately
+            qualified legal professional before being used where legal
+            accuracy or enforceability matters.
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                class="btn btn-primary"
+                onclick="closeAbout()"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // =========================
+    // GLOBAL STATE
+    // =========================
+
+    let selectedDocument = "Rental Agreement";
+
+    let generatedDocumentText = "";
+
+
+    // =========================
+    // SELECT DOCUMENT
+    // =========================
+
+    function selectDocument(element, type) {
+
+        document
+            .querySelectorAll(".document-type")
+            .forEach(item => {
+                item.classList.remove("selected");
+            });
+
+        element.classList.add("selected");
+
+        selectedDocument = type;
+    }
+
+
+    // =========================
+    // GENERATE DOCUMENT
+    // =========================
+
+    function generateDocument() {
+
+        const userName =
+            document.getElementById("userName").value.trim();
+
+        const otherParty =
+            document.getElementById("otherParty").value.trim();
+
+        const location =
+            document.getElementById("location").value.trim();
+
+        const date =
+            document.getElementById("effectiveDate").value;
+
+        const details =
+            document.getElementById("additionalDetails").value.trim();
+
+
+        if (!userName || !otherParty) {
+
+            alert(
+                "Please enter your name and the other party's name."
+            );
+
+            return;
+        }
+
+
+        const formattedDate = date
+            ? new Date(date).toLocaleDateString()
+            : "________________";
+
+
+        let title = selectedDocument.toUpperCase();
+
+        let documentHTML = "";
+
+
+        if (selectedDocument === "Rental Agreement") {
+
+            documentHTML = `
+
+                <h1>Rental Agreement</h1>
+
+                <p>
+                    This Rental Agreement ("Agreement") is entered into
+                    on <strong>${formattedDate}</strong> by and between
+                    <strong>${userName}</strong>, hereinafter referred to
+                    as the "Landlord", and
+                    <strong>${otherParty}</strong>, hereinafter referred
+                    to as the "Tenant".
+                </p>
+
+                <h2>1. Premises</h2>
+
+                <p>
+                    The Landlord agrees to rent the premises located in
+                    <strong>${location || "________________"}</strong>
+                    to the Tenant, subject to the terms and conditions
+                    contained in this Agreement.
+                </p>
+
+                <h2>2. Term</h2>
+
+                <p>
+                    The rental term shall commence on
+                    <strong>${formattedDate}</strong> and continue
+                    according to the mutually agreed rental period.
+                </p>
+
+                <h2>3. Rent and Payment</h2>
+
+                <p>
+                    The Tenant agrees to pay rent and any applicable
+                    charges according to the payment schedule agreed
+                    upon by the parties.
+                </p>
+
+                <h2>4. Responsibilities</h2>
+
+                <p>
+                    Both parties agree to comply with applicable laws
+                    and fulfill their respective responsibilities under
+                    this Agreement.
+                </p>
+
+                <h2>5. Additional Terms</h2>
+
+                <p>
+                    ${details || "No additional terms were specified."}
+                </p>
+
+                <h2>6. Entire Agreement</h2>
+
+                <p>
+                    This document represents the understanding between
+                    the parties concerning the subject matter described
+                    herein, subject to applicable law.
+                </p>
+
+                <div class="signature">
+
+                    <div class="signature-line">
+                        ${userName}<br>
+                        Landlord / Party 1<br>
+                        Date: ______________
+                    </div>
+
+                    <div class="signature-line">
+                        ${otherParty}<br>
+                        Tenant / Party 2<br>
+                        Date: ______________
+                    </div>
+
+                </div>
+            `;
+
+        } else if (selectedDocument === "Employment Contract") {
+
+            documentHTML = `
+
+                <h1>Employment Contract</h1>
+
+                <p>
+                    This Employment Contract is entered into on
+                    <strong>${formattedDate}</strong> between
+                    <strong>${userName}</strong> and
+                    <strong>${otherParty}</strong>.
+                </p>
+
+                <h2>1. Position and Duties</h2>
+
+                <p>
+                    The employee agrees to perform the duties and
+                    responsibilities associated with the agreed position
+                    and to comply with applicable workplace policies.
+                </p>
+
+                <h2>2. Compensation</h2>
+
+                <p>
+                    Compensation shall be determined by the parties
+                    according to the applicable employment arrangement.
+                </p>
+
+                <h2>3. Confidentiality</h2>
+
+                <p>
+                    The parties agree to protect confidential business
+                    and proprietary information obtained during the
+                    employment relationship.
+                </p>
+
+                <h2>4. Additional Terms</h2>
+
+                <p>
+                    ${details || "No additional terms were specified."}
+                </p>
+
+                <div class="signature">
+
+                    <div class="signature-line">
+                        ${userName}<br>
+                        Employer<br>
+                        Date: ______________
+                    </div>
+
+                    <div class="signature-line">
+                        ${otherParty}<br>
+                        Employee<br>
+                        Date: ______________
+                    </div>
+
+                </div>
+            `;
+
+        } else if (selectedDocument === "Non-Disclosure Agreement") {
+
+            documentHTML = `
+
+                <h1>Non-Disclosure Agreement</h1>
+
+                <p>
+                    This Non-Disclosure Agreement ("Agreement") is entered
+                    into on <strong>${formattedDate}</strong> between
+                    <strong>${userName}</strong> and
+                    <strong>${otherParty}</strong>.
+                </p>
+
+                <h2>1. Confidential Information</h2>
+
+                <p>
+                    Confidential Information means non-public information
+                    disclosed by one party to the other that is identified
+                    or reasonably understood to be confidential.
+                </p>
+
+                <h2>2. Use of Information</h2>
+
+                <p>
+                    The receiving party agrees to use confidential
+                    information only for the purposes authorized by
+                    the parties.
+                </p>
+
+                <h2>3. Protection</h2>
+
+                <p>
+                    Each party agrees to take reasonable measures to
+                    protect confidential information from unauthorized
+                    disclosure.
+                </p>
+
+                <h2>4. Additional Terms</h2>
+
+                <p>
+                    ${details || "No additional terms were specified."}
+                </p>
+
+                <div class="signature">
+
+                    <div class="signature-line">
+                        ${userName}<br>
+                        Party 1<br>
+                        Date: ______________
+                    </div>
+
+                    <div class="signature-line">
+                        ${otherParty}<br>
+                        Party 2<br>
+                        Date: ______________
+                    </div>
+
+                </div>
+            `;
+
+        } else if (selectedDocument === "Service Agreement") {
+
+            documentHTML = `
+
+                <h1>Service Agreement</h1>
+
+                <p>
+                    This Service Agreement is entered into on
+                    <strong>${formattedDate}</strong> between
+                    <strong>${userName}</strong> and
+                    <strong>${otherParty}</strong>.
+                </p>
+
+                <h2>1. Services</h2>
+
+                <p>
+                    The service provider agrees to provide the services
+                    mutually agreed upon by the parties.
+                </p>
+
+                <h2>2. Payment</h2>
+
+                <p>
+                    The client agrees to provide payment according to
+                    the agreed pricing and payment schedule.
+                </p>
+
+                <h2>3. Responsibilities</h2>
+
+                <p>
+                    Each party agrees to cooperate in good faith and
+                    perform its responsibilities under this Agreement.
+                </p>
+
+                <h2>4. Additional Terms</h2>
+
+                <p>
+                    ${details || "No additional terms were specified."}
+                </p>
+
+                <div class="signature">
+
+                    <div class="signature-line">
+                        ${userName}<br>
+                        Service Provider<br>
+                        Date: ______________
+                    </div>
+
+                    <div class="signature-line">
+                        ${otherParty}<br>
+                        Client<br>
+                        Date: ______________
+                    </div>
+
+                </div>
+            `;
+
+        } else {
+
+            documentHTML = `
+
+                <h1>${title}</h1>
+
+                <p>
+                    This Agreement is entered into on
+                    <strong>${formattedDate}</strong> between
+                    <strong>${userName}</strong> and
+                    <strong>${otherParty}</strong>.
+                </p>
+
+                <h2>1. Purpose</h2>
+
+                <p>
+                    The parties agree to the terms and conditions
+                    associated with the transaction described herein.
+                </p>
+
+                <h2>2. Terms</h2>
+
+                <p>
+                    ${details || "The parties shall mutually agree upon the applicable terms."}
+                </p>
+
+                <h2>3. Location</h2>
+
+                <p>
+                    ${location || "________________"}
+                </p>
+
+                <div class="signature">
+
+                    <div class="signature-line">
+                        ${userName}<br>
+                        Party 1<br>
+                        Date: ______________
+                    </div>
+
+                    <div class="signature-line">
+                        ${otherParty}<br>
+                        Party 2<br>
+                        Date: ______________
+                    </div>
+
+                </div>
+            `;
+        }
+
+
+        generatedDocumentText =
+            document.getElementById("preview").innerText;
+
+
+        document.getElementById("preview").innerHTML = `
+
+            <div class="document-paper">
+
+                ${documentHTML}
+
+                <p style="
+                    margin-top:50px;
+                    font-family:Arial;
+                    font-size:10px;
+                    color:#64748b;
+                    border-top:1px solid #ddd;
+                    padding-top:12px;
+                ">
+                    LegalEase generated draft. Review the document for
+                    accuracy and applicable jurisdiction-specific
+                    requirements before use.
+                </p>
+
+            </div>
+        `;
+
+
+        // Update document count
+
+        const countElement =
+            document.getElementById("documentCount");
+
+        let count =
+            parseInt(countElement.innerText) || 0;
+
+        countElement.innerText = count + 1;
+
+
+        // Add history row
+
+        addHistory(selectedDocument);
+
+
+        // Update generated text
+
+        generatedDocumentText =
+            document.getElementById("preview").innerText;
+
+    }
+
+
+    // =========================
+    // HISTORY
+    // =========================
+
+    function addHistory(type) {
+
+        const tbody =
+            document.getElementById("historyBody");
+
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+
+            <td>${type}</td>
+
+            <td>Just now</td>
+
+            <td>${type}</td>
+
+            <td>
+                <span class="status">
+                    Completed
+                </span>
+            </td>
+
+            <td>
+                <button
+                    class="btn btn-light"
+                    onclick="alert('This document is currently displayed above.')"
+                >
+                    Open
+                </button>
+            </td>
+        `;
+
+        tbody.prepend(row);
+    }
+
+
+    // =========================
+    // COPY
+    // =========================
+
+    function copyDocument() {
+
+        if (!generatedDocumentText) {
+
+            alert("Generate a document first.");
+
+            return;
+        }
+
+        navigator.clipboard
+            .writeText(generatedDocumentText)
+            .then(() => {
+
+                alert(
+                    "Document copied to clipboard."
+                );
+
+            });
+    }
+
+
+    // =========================
+    // DOWNLOAD
+    // =========================
+
+    function downloadDocument() {
+
+        const preview =
+            document.getElementById("preview");
+
+        if (
+            preview.innerText.includes(
+                "No document generated yet"
+            )
+        ) {
+
+            alert("Generate a document first.");
+
+            return;
+        }
+
+
+        const content =
+            preview.innerText;
+
+
+        const blob =
+            new Blob(
+                [content],
+                {
+                    type: "text/plain"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        link.download =
+            selectedDocument
+            .toLowerCase()
+            .replaceAll(" ", "-")
+            + ".txt";
+
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+    }
+
+
+    // =========================
+    // SEARCH
+    // =========================
+
+    function searchDocuments() {
+
+        const search =
+            document
+                .getElementById("searchInput")
+                .value
+                .toLowerCase();
+
+
+        const rows =
+            document
+                .querySelectorAll("#historyBody tr");
+
+
+        rows.forEach(row => {
+
+            const text =
+                row.innerText.toLowerCase();
+
+            row.style.display =
+                text.includes(search)
+                    ? ""
+                    : "none";
+
+        });
+    }
+
+
+    // =========================
+    // SCROLL
+    // =========================
+
+    function scrollToGenerator() {
+
+        document
+            .getElementById("generator")
+            .scrollIntoView({
+                behavior: "smooth"
+            });
+    }
+
+
+    // =========================
+    // ABOUT MODAL
+    // =========================
+
+    function showAbout() {
+
+        document
+            .getElementById("aboutModal")
+            .classList.add("show");
+    }
+
+
+    function closeAbout() {
+
+        document
+            .getElementById("aboutModal")
+            .classList.remove("show");
+    }
+
+
+    // Close modal when clicking outside
+
+    document
+        .getElementById("aboutModal")
+        .addEventListener("click", function(event) {
+
+            if (event.target === this) {
+                closeAbout();
+            }
+
+        });
+
+
+    // =========================
+    // DEFAULT DATE
+    // =========================
+
+    document
+        .getElementById("effectiveDate")
+        .valueAsDate = new Date();
+
+</script>
+
+</body>
+</html>
